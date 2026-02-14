@@ -1,0 +1,75 @@
+groups:
+  - name: task-manager-api
+    rules:
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{job="task-api", status=~"5.."}[5m])
+          / rate(http_requests_total{job="task-api"}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High HTTP error rate on Task API"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5m"
+
+      # High latency (p95 > 500ms)
+      - alert: HighAPILatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket{job="task-api"}[5m])
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High API latency (p95 > 500ms)"
+          description: "p95 latency is {{ $value | humanizeDuration }}"
+
+      # Pod restarts
+      - alert: PodCrashLooping
+        expr: |
+          rate(kube_pod_container_status_restarts_total{namespace="task-manager"}[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.pod }} is crash-looping"
+          description: "Container {{ $labels.container }} restarted {{ $value }} times"
+
+      # HPA at max capacity
+      - alert: HPAMaxReplicas
+        expr: |
+          kube_horizontalpodautoscaler_status_current_replicas{namespace="task-manager"}
+          >= kube_horizontalpodautoscaler_spec_max_replicas{namespace="task-manager"}
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "HPA {{ $labels.horizontalpodautoscaler }} at max replicas"
+
+  - name: task-manager-database
+    rules:
+
+      # DB connections near limit
+      - alert: PostgresHighConnections
+        expr: |
+          pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL connections high: {{ $value }}"
+
+      # Redis memory usage > 80%
+      - alert: RedisHighMemory
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory at {{ $value | humanizePercentage }}"
