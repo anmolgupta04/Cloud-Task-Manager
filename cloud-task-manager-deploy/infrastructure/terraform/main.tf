@@ -121,6 +121,17 @@ resource "aws_security_group" "postgres" {
     protocol        = "tcp"
     security_groups = [module.eks.node_security_group_id]
   }
+
+  dynamic "ingress" {
+    for_each = var.allow_render_inbound ? var.render_outbound_cidrs : []
+    content {
+      from_port   = 5432
+      to_port     = 5432
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+      description = "Allow Render outbound IP range"
+    }
+  }
 }
 
 resource "aws_db_instance" "postgres" {
@@ -165,6 +176,17 @@ resource "aws_security_group" "redis" {
     to_port         = 6379
     protocol        = "tcp"
     security_groups = [module.eks.node_security_group_id]
+  }
+
+  dynamic "ingress" {
+    for_each = var.allow_render_inbound ? var.render_outbound_cidrs : []
+    content {
+      from_port   = 6379
+      to_port     = 6379
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+      description = "Allow Render outbound IP range"
+    }
   }
 }
 

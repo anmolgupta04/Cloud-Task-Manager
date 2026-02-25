@@ -56,3 +56,15 @@ variable "eks_max_nodes" {
   type        = number
   default     = 10
 }
+
+variable "allow_render_inbound" {
+  description = "If true, allow inbound access from Render's outbound IP ranges to RDS/Redis (use with caution)."
+  type        = bool
+  default     = false
+}
+
+variable "render_outbound_cidrs" {
+  description = "CIDR ranges used by Render (shared)."
+  type        = list(string)
+  default     = ["74.220.52.0/24", "74.220.60.0/24"]
+}
