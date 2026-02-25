@@ -1,0 +1,14 @@
+/* Minimal styles for simplified frontend */
+:root{
+  --bg:#f7fbff; --card:#ffffff; --muted:#4a5568; --accent:#0b63ff; --text:#0b1722;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+.center{max-width:900px;margin:4rem auto;padding:1.5rem}
+h1{font-size:1.6rem;margin:0 0 0.25rem}
+.lead{color:var(--muted);margin:0 0 1rem}
+.box{background:var(--card);border-radius:8px;padding:1rem;margin:1rem 0;box-shadow:0 6px 20px rgba(11,99,255,0.04);}
+ul{margin:0.5rem 0 0 1.25rem;color:var(--muted)}
+h2{margin:0 0 0.5rem;font-size:1rem}
+@media (max-width:600px){.center{margin:2rem 1rem;padding:1rem}}
